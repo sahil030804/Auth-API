@@ -6,6 +6,18 @@ const loginUser = async (req, res) => {
 
   const findUserInDb = await userMdl.user.findOne({ email });
 
+  if (!findUserInDb) {
+    const error = new Error("USER NOT EXIST");
+    error.status = 400;
+    throw error;
+  }
+
+  if (password !== findUserInDb.password) {
+    const error = new Error("INVALID PASSWORD");
+    error.status = 401;
+    throw error;
+  }
+
   const accessToken = await utils.generateAccessToken(findUserInDb._id);
   const refreshToken = await utils.generateRefreshToken(findUserInDb._id);
 
