@@ -58,7 +58,7 @@ const logOutUser = async (req, res) => {
 
     req.session.destroy((err) => {
       if (err) {
-        const error = new Error("Something went wrong during logout.");
+        const error = new Error(err.message);
         error.code = "ERR_LOGOUT";
         error.status = 400;
         throw error;
