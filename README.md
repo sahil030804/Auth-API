@@ -66,7 +66,7 @@ Handles user login with different validation methods.
 ## 3. Logout
 Logs out the user and invalidates their session.
 
-- **Method:** `GET`
+- **Method:** `POST`
 - **URL:** `/api/auth/logout`
 
 ---
