@@ -78,6 +78,20 @@ const refreshAccessToken = async (req, res, next) => {
       accessToken: accessToken,
     });
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      const error = new Error("Refresh token expired");
+      error.code = "TOKEN_EXPIRED";
+      error.status = 401;
+      return next(error);
+    }
+
+    if (err.name === "JsonWebTokenError") {
+      const error = new Error("Invalid refresh token");
+      error.code = "TOKEN_INVALID";
+      error.status = 401;
+      return next(error);
+    }
+
     const error = new Error(err.message);
     error.code = err.code || "SERVER_ERR";
     error.status = err.status || 500;
