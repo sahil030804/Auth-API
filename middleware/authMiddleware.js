@@ -20,13 +20,6 @@ const verifyToken = (req, res, next) => {
       return next(error);
     }
 
-    if (token !== req.session.accessToken) {
-      const error = new Error("Access denied. Please log in");
-      error.code = "ACCESS_DENIED";
-      error.status = 403;
-      return next(error);
-    }
-
     const decodedToken = jwt.verify(token, env.jwt.ACCESS_TOKEN_KEY);
 
     req.user = decodedToken;
