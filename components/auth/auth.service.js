@@ -15,7 +15,7 @@ const loginUser = async (reqBody) => {
       throw error;
     }
 
-    if (password !== foundUserInDb.password) {
+    if (!authHelper.decryptPassword(password, foundUserInDb.password)) {
       const error = new Error("Invalid Password");
       error.code = "INVALID_PASSWORD";
       error.status = 401;
@@ -99,10 +99,15 @@ const registerUser = async (reqBody) => {
       throw error;
     }
 
+    console.log(password);
+
+    const hashPassword = authHelper.encryptPassword(password);
+    console.log(hashPassword);
+
     const userData = await userMdl.user({
       name: name,
       email: email,
-      password: password,
+      password: hashPassword,
       registeredAt: new Date().toISOString(),
     });
 
