@@ -14,16 +14,12 @@ const verifyToken = (req, res, next) => {
     // console.log(token);
 
     if (!token) {
-      const error = new Error("Token is not available in header");
-      error.code = "TOKEN_MISSING";
-      error.status = 401;
+      const error = new Error("ACCESS_TOKEN_MISSING");
       return next(error);
     }
 
     if (token !== req.session.accessToken) {
-      const error = new Error("Access denied. Please log in");
-      error.code = "ACCESS_DENIED";
-      error.status = 403;
+      const error = new Error("ACCESS_DENIED");
       return next(error);
     }
 
@@ -33,9 +29,17 @@ const verifyToken = (req, res, next) => {
 
     next();
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      const error = new Error("ACCESS_TOKEN_EXPIRED");
+      return next(error);
+    }
+
+    if (err.name === "JsonWebTokenError") {
+      const error = new Error("TOKEN_INVALID");
+      return next(error);
+    }
+
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     return next(error);
   }
 };

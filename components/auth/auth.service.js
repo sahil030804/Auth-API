@@ -9,16 +9,12 @@ const loginUser = async (reqBody) => {
     const foundUserInDb = await userMdl.user.findOne({ email });
 
     if (!foundUserInDb) {
-      const error = new Error("User not found");
-      error.code = "USER_NOT_FOUND";
-      error.status = 404;
+      const error = new Error("USER_NOT_FOUND");
       throw error;
     }
 
     if (!authHelper.decryptPassword(password, foundUserInDb.password)) {
-      const error = new Error("Invalid Password");
-      error.code = "INVALID_PASSWORD";
-      error.status = 401;
+      const error = new Error("INVALID_PASSWORD");
       throw error;
     }
 
@@ -33,8 +29,6 @@ const loginUser = async (reqBody) => {
     };
   } catch (err) {
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     throw error;
   }
 };
@@ -47,9 +41,7 @@ const logOutUser = async (req, res) => {
     const foundUserInDb = await userMdl.user.findOne({ _id: userId });
 
     if (!foundUserInDb) {
-      const error = new Error("User not found");
-      error.code = "USER_NOT_FOUND";
-      error.status = 404;
+      const error = new Error("USER_NOT_FOUND");
       throw error;
     }
 
@@ -59,8 +51,6 @@ const logOutUser = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         const error = new Error(err.message);
-        error.code = "ERR_LOGOUT";
-        error.status = 400;
         throw error;
       }
     });
@@ -69,8 +59,6 @@ const logOutUser = async (req, res) => {
     return { message: "Logged out successfully." };
   } catch (err) {
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     throw error;
   }
 };
@@ -93,16 +81,16 @@ const registerUser = async (reqBody) => {
     const emailExistCheck = await emailExistingCheck(email);
 
     if (emailExistCheck) {
-      const error = new Error("User already exist");
-      error.code = "USER_EXIST";
-      error.status = 409;
+      const error = new Error("USER_EXIST");
       throw error;
     }
 
-    console.log(password);
+    if (password.length < 6 || password.length > 18) {
+      const error = new Error("INVALID_PASSWORD");
+      throw error;
+    }
 
     const hashPassword = authHelper.encryptPassword(password);
-    console.log(hashPassword);
 
     const userData = await userMdl.user({
       name: name,
@@ -129,12 +117,6 @@ const registerUser = async (reqBody) => {
     };
   } catch (err) {
     const error = new Error(err.message);
-    if (err.name === "ValidationError") {
-      err.code = "DB_ERR";
-      err.status = 400;
-    }
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     throw error;
   }
 };
