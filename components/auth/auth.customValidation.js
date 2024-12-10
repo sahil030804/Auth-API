@@ -1,4 +1,5 @@
 import userMdl from "../../schemas/userMdl.js";
+import authHelper from "../../helper/authHelper.js";
 
 const emailExistingCheck = async (email) => {
   const countEmailExisting = await userMdl.user.countDocuments({ email });
@@ -41,8 +42,8 @@ const customLoginValidation = async (req, res, next) => {
     error.code = "PASSWORD_REQUIRED";
     error.status = 400;
     return next(error);
-  } else if (password !== foundUserInDb.password) {
-    const error = new Error("Invalid password");
+  } else if (!authHelper.decryptPassword(password, foundUserInDb.password)) {
+    const error = new Error("Invalid Password");
     error.code = "INVALID_PASSWORD";
     error.status = 401;
     return next(error);
