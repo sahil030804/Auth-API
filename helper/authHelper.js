@@ -1,6 +1,18 @@
 import userMdl from "../schemas/userMdl.js";
 import jwt from "jsonwebtoken";
 import env from "../config.js";
+import bcrypt from "bcrypt";
+
+const saltRounds = 10;
+
+const encryptPassword = (password) => {
+  const salt = bcrypt.genSaltSync(saltRounds);
+  return bcrypt.hashSync(password, salt);
+};
+
+const decryptPassword = (plain, hashed) => {
+  return bcrypt.compareSync(plain, hashed);
+};
 
 const generateAccessToken = async (userId) => {
   try {
@@ -100,6 +112,8 @@ const refreshAccessToken = async (req, res, next) => {
 };
 
 export default {
+  encryptPassword,
+  decryptPassword,
   generateAccessToken,
   generateRefreshToken,
   refreshAccessToken,
