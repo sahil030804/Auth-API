@@ -23,8 +23,6 @@ const generateAccessToken = async (userId) => {
     return accessToken;
   } catch (err) {
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     return next(error);
   }
 };
@@ -43,8 +41,6 @@ const generateRefreshToken = async (userId) => {
     return refreshToken;
   } catch (err) {
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     return next(error);
   }
 };
@@ -59,9 +55,7 @@ const refreshAccessToken = async (req, res, next) => {
   }
 
   if (!token) {
-    const error = new Error("Refresh Token Is Unavailable");
-    error.code = "REFRESH_TOKEN_MISSING";
-    error.status = 401;
+    const error = new Error("REFRESH_TOKEN_MISSING");
     return next(error);
   }
   try {
@@ -69,16 +63,12 @@ const refreshAccessToken = async (req, res, next) => {
     const foundUserInDb = await userMdl.user.findOne({ _id: decodedToken._id });
 
     if (!foundUserInDb) {
-      const error = new Error("User not found");
-      error.code = "USER_NOT_FOUND";
-      error.status = 404;
+      const error = new Error("USER_NOT_FOUND");
       return next(error);
     }
 
     if (token !== foundUserInDb.refreshToken) {
-      const error = new Error("Refresh token expired or in use");
-      error.code = "REFRESH_TOKEN_EXPIRED";
-      error.status = 401;
+      const error = new Error("REFRESH_TOKEN_EXPIRED");
       return next(error);
     }
 
@@ -91,22 +81,16 @@ const refreshAccessToken = async (req, res, next) => {
     });
   } catch (err) {
     if (err.name === "TokenExpiredError") {
-      const error = new Error("Refresh token expired");
-      error.code = "TOKEN_EXPIRED";
-      error.status = 401;
+      const error = new Error("REFRESH_TOKEN_EXPIRED");
       return next(error);
     }
 
     if (err.name === "JsonWebTokenError") {
-      const error = new Error("Invalid refresh token");
-      error.code = "TOKEN_INVALID";
-      error.status = 401;
+      const error = new Error("TOKEN_INVALID");
       return next(error);
     }
 
     const error = new Error(err.message);
-    error.code = err.code || "SERVER_ERR";
-    error.status = err.status || 500;
     return next(error);
   }
 };

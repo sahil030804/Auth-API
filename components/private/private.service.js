@@ -13,8 +13,6 @@ const pageData = async (req, res) => {
     };
   } catch (err) {
     const error = new Error(err.message);
-    error.code = "SERVER_ERR";
-    error.status = 500;
     throw error;
   }
 };
