@@ -18,16 +18,16 @@ const verifyToken = (req, res, next) => {
       return next(error);
     }
 
-    if (token !== req.session.accessToken) {
-      const error = new Error("ACCESS_DENIED");
-      return next(error);
-    }
+    jwt.verify(token, env.jwt.ACCESS_TOKEN_KEY, (err, decoded) => {
+      if (err) {
+        const error = new Error(err.message);
+        return next(error);
+      }
+      req.user = decoded;
 
-    const decodedToken = jwt.verify(token, env.jwt.ACCESS_TOKEN_KEY);
-
-    req.user = decodedToken;
-
-    next();
+      next();
+    });
+    
   } catch (err) {
     if (err.name === "TokenExpiredError") {
       const error = new Error("ACCESS_TOKEN_EXPIRED");
